@@ -17,32 +17,36 @@ import java.time.Instant;
 @Setter
 @Builder
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
-
 
     @Email(message = "Invalid email format")
     @NotNull
+    @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @NotBlank(message = "password can't be blank")
+    @NotBlank(message = "Password is required")
+    @Column(nullable = false)
     private String password;
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role;
 
-    private Boolean isActive=true;
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
 
     @CreationTimestamp
-    @NotNull
+    @Column(name = "created_at", updatable = false, nullable = false)
     private Instant createdAt;
 
     @UpdateTimestamp
-    @NotNull
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 }
