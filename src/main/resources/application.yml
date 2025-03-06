@@ -1,1 +1,5 @@
-spring.application.name=User-Api
+spring:
+  profiles:
+    active: dev
+  application:
+       name: User-Api
