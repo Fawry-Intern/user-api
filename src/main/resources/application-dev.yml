@@ -21,7 +21,7 @@ custom:
     driver: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
-    password: 12345
+    password: postgres
     maxPoolSize: 20
     maxLifeTime: 1800000
 
