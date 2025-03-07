@@ -34,27 +34,4 @@ public class DBConfig {
        return dataSource;
     }
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource){
-        var em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource);
-        em.setPackagesToScan("com.fawry.user_api.entity");
-
-        var hibernate = new HibernateJpaVendorAdapter();
-        em.setJpaVendorAdapter(hibernate);
-        em.setJpaProperties(hibernateProperties());
-
-        return em;
-    }
-
-    private Properties hibernateProperties() {
-        var props = new Properties();
-        props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        props.put("hibernate.hbm2ddl.auto", "update");
-        props.put("hibernate.show_sql", "true");
-        props.put("hibernate.format_sql", "true");
-        props.setProperty("hibernate.jdbc.batch_size", "20");
-
-        return props;
-    }
 }
