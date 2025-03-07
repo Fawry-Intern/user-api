@@ -1,5 +1,16 @@
-server:
-  port: 9091
+spring:
+  config:
+    activate:
+      on-profile: dev
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl.auto: update
+        show_sql: true
+        format_sql: true
+        jdbc:
+          batch_size: 20
 
 eureka:
   client:
@@ -10,6 +21,9 @@ custom:
     driver: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
-    password: postgres
+    password: 12345
+    maxPoolSize: 20
+    maxLifeTime: 1800000
 
-
+server:
+  port: 9091
