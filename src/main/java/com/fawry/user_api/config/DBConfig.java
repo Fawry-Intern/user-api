@@ -29,6 +29,8 @@ public class DBConfig {
        dataSource.setJdbcUrl(properties.getUrl());
        dataSource.setUsername(properties.getUsername());
        dataSource.setPassword(properties.getPassword());
+       dataSource.setMaximumPoolSize(properties.getMaxPoolSize());
+       dataSource.setMaxLifetime(properties.getMaxLifeTime());
        return dataSource;
     }
 
