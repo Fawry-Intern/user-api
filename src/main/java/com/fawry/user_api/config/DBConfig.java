@@ -1,8 +1,10 @@
 package com.fawry.user_api.config;
 
 import com.fawry.user_api.config.properties.DatasourceProperties;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -21,13 +23,13 @@ public class DBConfig {
 
     @Bean("datasource_db")
     public DataSource dataSource() {
-        var dataSource = new DriverManagerDataSource();
+        var dataSource = new HikariDataSource();
 
-        dataSource.setDriverClassName(properties.getDriver());
-        dataSource.setUrl(properties.getUrl());
-        dataSource.setUsername(properties.getUsername());
-        dataSource.setPassword(properties.getPassword());
-        return dataSource;
+       dataSource.setDriverClassName(properties.getDriver());
+       dataSource.setJdbcUrl(properties.getUrl());
+       dataSource.setUsername(properties.getUsername());
+       dataSource.setPassword(properties.getPassword());
+       return dataSource;
     }
 
     @Bean
@@ -42,13 +44,15 @@ public class DBConfig {
 
         return em;
     }
+
     private Properties hibernateProperties() {
         var props = new Properties();
         props.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        props.put("hibernate.hbm2ddl.auto", "create");
+        props.put("hibernate.hbm2ddl.auto", "update");
         props.put("hibernate.show_sql", "true");
         props.put("hibernate.format_sql", "true");
         props.setProperty("hibernate.jdbc.batch_size", "20");
+
         return props;
     }
 }
