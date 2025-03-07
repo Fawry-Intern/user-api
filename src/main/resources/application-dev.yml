@@ -1,29 +1,19 @@
-spring:
-  config:
-    activate:
-      on-profile: dev
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        hbm2ddl.auto: update
-        show_sql: true
-        format_sql: true
-        jdbc:
-          batch_size: 20
-
+server:
+  port: 4041
 eureka:
   client:
     serviceUrl:
       defaultZone: http://localhost:8765/eureka
-custom:
+spring:
   datasource:
-    driver: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
     password: postgres
-    maxPoolSize: 20
-    maxLifeTime: 1800000
-
-server:
-  port: 9091
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
