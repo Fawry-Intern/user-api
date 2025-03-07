@@ -14,4 +14,8 @@ public class DatasourceProperties {
     private String url;
     private String username;
     private String password;
+    private int maxPoolSize;
+    private int maxLifeTime;
+
 }
+
