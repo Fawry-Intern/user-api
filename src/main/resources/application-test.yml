@@ -1,4 +1,11 @@
 spring:
+  datasource:
+    driver: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/user_db
+    username: postgres
+    password: 12345
+    maxPoolSize: 20
+    maxLifeTime: 1800000
   config:
     activate:
       on-profile: test
@@ -15,15 +22,9 @@ spring:
 eureka:
   client:
     serviceUrl:
-      defaultZone: http://localhost:8765/eureka
-custom:
-  datasource:
-    driver: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/user_db
-    username: postgres
-    password: 12345
-    maxPoolSize: 20
-    maxLifeTime: 1800000
+      defaultZone: http://localhost:8761/eureka
+
+
 
 server:
   port: 1100
