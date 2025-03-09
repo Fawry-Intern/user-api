@@ -16,7 +16,7 @@ public class TokenController {
 
     //here roles must be both client and admin
     @GetMapping("/user/validation")
-    public ResponseEntity<Void> validateClientToken() {
+    public ResponseEntity<Void> validateUserToken() {
         return ResponseEntity.ok().build();
     }
 

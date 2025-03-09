@@ -4,6 +4,7 @@ import com.fawry.user_api.dto.AuthenticationResponse;
 import com.fawry.user_api.dto.PasswordChangeRequest;
 import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

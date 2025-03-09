@@ -8,7 +8,9 @@ import com.fawry.user_api.entity.User;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthenticationServiceImpl implements AuthenticationService{
 
     private final UserRepository userRepository;

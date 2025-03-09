@@ -1,6 +1,5 @@
 package com.fawry.user_api.service;
 
-import com.fawry.user_api.dto.AuthenticationResponse;
 import com.fawry.user_api.dto.PasswordChangeRequest;
 import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.entity.User;
@@ -9,9 +8,10 @@ import com.fawry.user_api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+@Service
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
  private final PasswordEncoder passwordEncoder;
