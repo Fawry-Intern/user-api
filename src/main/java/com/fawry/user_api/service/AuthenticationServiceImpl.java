@@ -7,16 +7,25 @@ import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.repository.UserRepository;
+import com.fawry.user_api.security.JwtService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class AuthenticationServiceImpl implements AuthenticationService{
 
     private final UserRepository userRepository;
- private  final PasswordEncoder passwordEncoder;
+    private  final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtService = jwtService;
     }
 
 
@@ -39,8 +48,11 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     @Override
     public AuthenticationResponse logIn(LogInRequest request) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(),request.password()));
 
-        //todo: depends on JWT
-        return null;
+        User user=userRepository.findByEmail(request.email()).orElseThrow(()->new EntityNotFoundException("user not found"));
+        String token=jwtService.generateToken(user);
+
+        return new AuthenticationResponse(token, user.getId());
     }
 }

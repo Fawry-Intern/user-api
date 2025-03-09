@@ -20,8 +20,6 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
 @Builder
 @Entity
 @Table(name = "users", indexes = {
@@ -78,13 +76,71 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
+    public User(){
+
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public void setIsActive(Boolean active) {
+        isActive = active;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     @Override
     public boolean isAccountNonExpired() {
         return isActive;
     }
 
-    public User(String username,String email,String password,UserRole role)
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public User(String username, String email, String password, UserRole role)
     {
         this.username=username;
         this.email=email;
