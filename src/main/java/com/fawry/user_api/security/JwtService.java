@@ -1,4 +1,4 @@
-package com.fawry.user_api.service;
+package com.fawry.user_api.security;
 
 import org.springframework.security.core.userdetails.UserDetails;
 

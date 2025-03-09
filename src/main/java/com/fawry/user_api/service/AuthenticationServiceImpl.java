@@ -7,23 +7,27 @@ import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class AuthenticationServiceImpl implements AuthenticationService{
 
     private final UserRepository userRepository;
+ private  final PasswordEncoder passwordEncoder;
 
-    public AuthenticationServiceImpl(UserRepository userRepository) {
+    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
     @Override
     public Boolean signUp(SignUpRequest request) {
 
-
-        ///todo: we must encode password
         User user = new User
-                (request.username(),request.email(),request.password(),request.role());
+                (request.username(),
+                        request.email(),
+                        passwordEncoder.encode(request.password()),
+                        request.role());
 
 
         if (userRepository.existsByUsername(user.getUsername())) {
