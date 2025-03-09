@@ -76,7 +76,9 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
+    public User(){
 
+    }
     public void setId(Long id) {
         this.id = id;
     }

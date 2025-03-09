@@ -1,5 +1,7 @@
 package com.fawry.user_api.controller;
 
+import com.fawry.user_api.dto.AuthenticationResponse;
+import com.fawry.user_api.dto.LogInRequest;
 import com.fawry.user_api.dto.SignUpRequest;
 import com.fawry.user_api.service.AuthenticationService;
 import com.fawry.user_api.service.AuthenticationServiceImpl;
@@ -18,6 +20,10 @@ public class AuthController {
         this.authenticationService = authenticationService;
     }
 
+    @PostMapping("login")
+    public ResponseEntity<AuthenticationResponse>login(@RequestBody LogInRequest logInRequest) {
+        return ResponseEntity.ok(authenticationService.logIn(logInRequest));
+    }
     @PostMapping("sign-up")
     public ResponseEntity<Boolean> singUp(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authenticationService.signUp(signUpRequest));

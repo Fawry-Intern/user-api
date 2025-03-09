@@ -87,7 +87,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new EntityNotFoundException("user with this user name doesn't exist"));
+        return email -> userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("user with this email doesn't exist"));
     }
 }
