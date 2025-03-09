@@ -1,4 +1,4 @@
-package com.fawry.user_api.service;
+package com.fawry.user_api.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

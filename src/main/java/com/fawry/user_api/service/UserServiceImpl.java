@@ -8,14 +8,17 @@ import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
+ private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     @Override
     public List<UserResponse> findAllUsers() {
@@ -61,12 +64,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public Long changeUserPassword( PasswordChangeRequest passwordChangeRequest) {
           User user =getUserEntity(passwordChangeRequest.userId());
-        ///todo: we must encode password before checking
 
-          if(!user.getPassword().equals(passwordChangeRequest.oldPassword()))
+    String encodedPassword=passwordEncoder.encode(passwordChangeRequest.oldPassword());
+
+          if(!user.getPassword().equals(encodedPassword))
               throw new ValidationException("two passwords aren't identical");
-        ///todo: we must encode password
-        user.setPassword(passwordChangeRequest.newPassword());
+        user.setPassword(encodedPassword);
 
         userRepository.save(user);
 

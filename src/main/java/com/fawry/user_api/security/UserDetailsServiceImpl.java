@@ -1,4 +1,4 @@
-package com.fawry.user_api.service;
+package com.fawry.user_api.security;
 
 import com.fawry.user_api.entity.User;
 import org.springframework.stereotype.Service;
