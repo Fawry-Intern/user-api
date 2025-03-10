@@ -4,13 +4,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create user_role enum -->
-    <changeSet id="create_enum_user_role" author="muhammad hussein" context="development">
-        <sql>
-            CREATE TYPE user_role AS ENUM ('ADMIN', 'CUSTOMER');
-        </sql>
-    </changeSet>
-
     <!-- Create users table -->
     <changeSet id="create_users_tbl" author="muhammad hussein" context="development">
         <preConditions onFail="MARK_RAN">
@@ -43,8 +36,29 @@
         </createTable>
     </changeSet>
 
-    <!-- Add index on email column -->
-    <changeSet id="idx_users_email" author="muhammad hussein" context="development">
-        <sqlFile path="db/changelog/sql/idx_users_email_v.0.0.0.sql"/>
+
+    <changeSet id="add_username_column" author="muhammad hussein" context="development">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="users" columnName="username"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="users">
+            <column name="username" type="VARCHAR(150)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+
+    <changeSet id="idx_users_username" author="muhammad hussein" context="development">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <indexExists indexName="idx_users_username"/>
+            </not>
+        </preConditions>
+        <createIndex indexName="idx_users_username" tableName="users">
+            <column name="username"/>
+        </createIndex>
     </changeSet>
 </databaseChangeLog>

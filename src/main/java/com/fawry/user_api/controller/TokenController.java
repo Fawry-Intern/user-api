@@ -1,23 +1,31 @@
 package com.fawry.user_api.controller;
 
+import com.fawry.user_api.util.UserClaimsHelper;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("token")
+@RequestMapping("api/token")
 public class TokenController {
+
+
     //just for admin responsibilities
     @GetMapping("/admin/validation")
-    public ResponseEntity<Void> validateAdminToken() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserDetails> validateAdminToken() {
+        UserDetails userDetails= UserClaimsHelper.getClaims();
+
+        return ResponseEntity.ok(userDetails);
     }
 
     //here roles must be both client and admin
     @GetMapping("/user/validation")
-    public ResponseEntity<Void> validateUserToken() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<UserDetails> validateUserToken() {
+
+        UserDetails userDetails= UserClaimsHelper.getClaims();
+        return ResponseEntity.ok(userDetails);
     }
 
 }

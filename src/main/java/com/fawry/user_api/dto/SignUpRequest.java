@@ -1,5 +1,6 @@
 package com.fawry.user_api.dto;
 
+
 import com.fawry.user_api.enums.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -20,6 +21,7 @@ public record SignUpRequest
                 String email,
 
                 @NotBlank(message = "Password is required")
+
                 String password,
 
                 UserRole role

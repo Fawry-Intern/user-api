@@ -3,11 +3,12 @@ package com.fawry.user_api.service;
 import com.fawry.user_api.dto.AuthenticationResponse;
 import com.fawry.user_api.dto.LogInRequest;
 import com.fawry.user_api.dto.SignUpRequest;
-import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.exception.EntityNotFoundException;
+import com.fawry.user_api.exception.IllegalActionException;
 import com.fawry.user_api.repository.UserRepository;
 import com.fawry.user_api.security.JwtService;
+import com.fawry.user_api.util.PasswordValidationHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +33,9 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     @Override
     public Boolean signUp(SignUpRequest request) {
 
+        if (!PasswordValidationHelper.isValid(request.password())) {
+            throw new IllegalActionException("Password does not meet security requirements");
+        }
         User user = new User
                 (request.username(),
                         request.email(),
@@ -48,6 +52,9 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     @Override
     public AuthenticationResponse logIn(LogInRequest request) {
+        if (!PasswordValidationHelper.isValid(request.password())) {
+            throw new IllegalActionException("Password does not meet security requirements");
+        }
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(),request.password()));
 
         User user=userRepository.findByEmail(request.email()).orElseThrow(()->new EntityNotFoundException("user not found"));
