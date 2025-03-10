@@ -1,11 +1,13 @@
 package com.fawry.user_api.controller;
 
-import com.fawry.user_api.dto.AuthenticationResponse;
-import com.fawry.user_api.dto.PasswordChangeRequest;
-import com.fawry.user_api.dto.UserResponse;
+import com.fawry.user_api.dto.*;
 import com.fawry.user_api.service.UserService;
+import io.jsonwebtoken.Claims;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,25 +20,29 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserProfile(@PathVariable Long userId)
+
+    @PostMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUserProfile(@Valid @PathVariable Long userId, @RequestBody UserDetailsDTO userDetails)
     {
-        return ResponseEntity.ok(userService.getUserProfile(userId));
-    }
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Boolean> removeAccount(@PathVariable Long userId)
-    {
-
-      return   ResponseEntity.ok(userService.removeAccount(userId));
-
+        return ResponseEntity.ok(userService.getUserProfile(userId,userDetails));
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<Long>changeUserAccountPassword(@RequestBody PasswordChangeRequest passwordChangeRequest)
+    public ResponseEntity<Long>changeUserAccountPassword
+            (@RequestBody PasswordChangeWrapper passwordChangeWrapper)
     {
-     return ResponseEntity.ok(userService.changeUserPassword(passwordChangeRequest));
+     return ResponseEntity.ok(
+             userService.changeUserAccountPassword(passwordChangeWrapper.passwordChangeRequest()
+             ,passwordChangeWrapper.userDetails()));
     }
+     @PutMapping("/reset-password")
+     public ResponseEntity<Long> resetUserAccountPassword
+             (@RequestBody PasswordResetWrapper passwordResetWrapper)
+     {
+      return ResponseEntity.ok(
+              userService.resetUserAccountPassword(passwordResetWrapper.passwordResetRequest()
+              ,passwordResetWrapper.userDetails()));
+     }
 
     //admin authorities only
     @GetMapping
@@ -45,15 +51,17 @@ public class UserController {
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
-    @PostMapping("/activate/{userId}")
-    public ResponseEntity<UserResponse> activateUser(@PathVariable Long userId)
+    @PutMapping("/activate/{userId}")
+    public ResponseEntity<UserResponse> activateUser(@Valid @PathVariable Long userId,@RequestBody UserDetailsDTO userDetails)
     {
-        return ResponseEntity.ok(userService.activateUser(userId));
+        return ResponseEntity.ok(userService.activateUser(userId,userDetails));
     }
-    @PostMapping("/deactivate/{userId}")
-    public ResponseEntity<UserResponse> deactivateUser(@PathVariable Long userId)
+    @PutMapping("/deactivate/{userId}")
+    public ResponseEntity<UserResponse> deactivateUser
+            (@Valid @PathVariable Long userId
+            ,@RequestBody UserDetailsDTO userDetails)
     {
-        return ResponseEntity.ok(userService.deactivateUser(userId));
+        return ResponseEntity.ok(userService.deactivateUser(userId,userDetails));
     }
 
 

@@ -1,10 +1,14 @@
 package com.fawry.user_api.service;
 
 import com.fawry.user_api.dto.PasswordChangeRequest;
+import com.fawry.user_api.dto.PasswordResetRequest;
+import com.fawry.user_api.dto.UserDetailsDTO;
 import com.fawry.user_api.dto.UserResponse;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.exception.EntityNotFoundException;
+import com.fawry.user_api.exception.IllegalActionException;
 import com.fawry.user_api.repository.UserRepository;
+import com.fawry.user_api.util.PasswordValidationHelper;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,60 +30,100 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserResponse getUserProfile(Long userId) {
+    public UserResponse getUserProfile(Long userId,UserDetailsDTO userDetails) {
         User user=getUserEntity(userId);
-    return new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
+        if(!isSameUser(user.getEmail(),userDetails.email()))
+            throw new IllegalActionException("only admin can see other profiles");
+
+       return new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
+
     }
+
 
 
     @Transactional
     @Override
-    public Boolean removeAccount(Long userId) {
+    public UserResponse activateUser(Long userId,UserDetailsDTO userDetails) {
 
         User user=getUserEntity(userId);
-        userRepository.delete(user);
+        if(isSameUser(user.getEmail(), userDetails.email()))
+            throw new IllegalActionException("only admin can activate your account");
+        user.setIsActive(true);
 
-        return true;
-    }
-
-    @Transactional
-    @Override
-    public UserResponse activateUser(Long userId) {
-        User user=getUserEntity(userId);
-            user.setIsActive(true);
-            userRepository.save(user);
         return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
     }
 
     @Transactional
     @Override
-    public UserResponse deactivateUser(Long userId) {
+    public UserResponse deactivateUser(Long userId,UserDetailsDTO userDetails) {
         User user=getUserEntity(userId);
+        if( isSameUser(user.getEmail(), userDetails.email()))
+            throw new IllegalActionException("only admin can deactivate your account");
         user.setIsActive(false);
-        userRepository.save(user);
+
         return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
     }
 
     @Transactional
     @Override
-    public Long changeUserPassword( PasswordChangeRequest passwordChangeRequest) {
-          User user =getUserEntity(passwordChangeRequest.userId());
+    public Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest,UserDetailsDTO userDetails) {
 
-    String encodedPassword=passwordEncoder.encode(passwordChangeRequest.oldPassword());
 
-          if(!user.getPassword().equals(encodedPassword))
-              throw new ValidationException("two passwords aren't identical");
-        user.setPassword(encodedPassword);
+        if (!PasswordValidationHelper.isValid(passwordResetRequest.newPassword())) {
+            throw new IllegalActionException("Password does not meet security requirements");
+        }
+        User user=getUserEntity(passwordResetRequest.userId());
 
-        userRepository.save(user);
+        if(!isSameUser(user.getEmail(),userDetails.email()))
+            throw new IllegalActionException("you can't reset other user account password");
+        String newPassword= passwordResetRequest.newPassword();
+        String confirmedPassword= passwordResetRequest.confirmedPassword();
+
+        if(!confirmedPassword.equals(newPassword))
+            throw new ValidationException("the two passwords aren't identical");
+        user.setPassword(passwordEncoder.encode(newPassword));
 
         return user.getId();
     }
+
+
+    @Transactional
+    @Override
+    public Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest, UserDetailsDTO userDetails) {
+
+        if (!PasswordValidationHelper.isValid(passwordChangeRequest.newPassword())) {
+            throw new IllegalActionException("Password does not meet security requirements");
+        }
+
+        User user = getUserEntity(passwordChangeRequest.userId());
+
+        if (!isSameUser(user.getEmail(), userDetails.email())) {
+            throw new IllegalArgumentException("You can't change another user's account password");
+        }
+
+
+        if (!passwordEncoder.matches(passwordChangeRequest.oldPassword(), user.getPassword())) {
+            throw new ValidationException("Old password isn't correct");
+        }
+
+
+        String encodedNewPassword = passwordEncoder.encode(passwordChangeRequest.newPassword());
+        user.setPassword(encodedNewPassword);
+
+        return user.getId();
+    }
+
 
     private User getUserEntity(Long userId)
     {
         return userRepository.findById(userId)
                 .orElseThrow(()->new EntityNotFoundException("User with id= "+userId+" doesn't exist"));
     }
+
+   private Boolean isSameUser(String email,String otherEmail)
+   {
+       return  otherEmail.equals(email);
+   }
+
 
 }

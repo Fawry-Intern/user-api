@@ -40,10 +40,14 @@ public class SecurityConfig {
             "api/auth/**"
     };
     private static final String[] AUTH_ADMIN = {
-
+            "/api/user/activate/**",
+            "/api/user/deactivate/**",
+            "/api/user" // Endpoint to get all users
     };
-    private static final String[] AUTH_CUSTOMER = {
-
+    private static final String[] AUTH_USER = {
+            "/api/user/{userId}", // Get profile
+            "/api/user/change-password",
+            "/api/user/reset-password"
     };
 
     @Bean
@@ -58,7 +62,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(configurer -> configurer
                         .requestMatchers(AUTH_WHITELIST).permitAll()
                         .requestMatchers(AUTH_ADMIN).hasRole("ADMIN")  // Only admins can access admin routes
-                        .requestMatchers(AUTH_CUSTOMER).hasRole("CUSTOMER")  // Client access
+                        .requestMatchers(AUTH_USER).hasAnyRole("ADMIN","CUSTOMER")  // Client access
                         .anyRequest().authenticated()
                 );
 
