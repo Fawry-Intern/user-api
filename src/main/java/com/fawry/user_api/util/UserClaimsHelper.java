@@ -8,25 +8,25 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class UserClaimsHelper {
-    private static UserDetails userDetails;
+    private static Long userId;
 
    private static final ReadWriteLock lock=new ReentrantReadWriteLock();
 
-    public  static UserDetails getClaims()
+    public  static Long getClaims()
     {
         lock.readLock().lock();
 
-        UserDetails userDetails2=userDetails;
+        Long userDetails2=userId;
 
         lock.readLock().unlock();
 
         return userDetails2;
 
     }
-    public  static void setClaims(UserDetails userDetails)
+    public  static void setClaims(Long userId)
     {
         lock.writeLock().lock();
-        UserClaimsHelper.userDetails =userDetails;
+        UserClaimsHelper.userId =userId;
         lock.writeLock().unlock();
     }
 }

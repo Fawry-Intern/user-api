@@ -9,6 +9,7 @@ import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.exception.IllegalActionException;
 import com.fawry.user_api.repository.UserRepository;
 import com.fawry.user_api.util.PasswordValidationHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,9 +21,12 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
  private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+ private final HttpServletRequest httpServletRequest;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, HttpServletRequest httpServletRequest) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.httpServletRequest = httpServletRequest;
     }
     @Override
     public List<UserResponse> findAllUsers() {
@@ -30,9 +34,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserResponse getUserProfile(Long userId,UserDetailsDTO userDetails) {
+    public UserResponse getUserProfile(Long userId) {
+
+        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+
         User user=getUserEntity(userId);
-        if(!isSameUser(user.getEmail(),userDetails.email()))
+        if(!isSameUser(user.getId(),parseUserId(authenticatedUserId)))
             throw new IllegalActionException("only admin can see other profiles");
 
        return new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
@@ -43,11 +50,12 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public UserResponse activateUser(Long userId,UserDetailsDTO userDetails) {
+    public UserResponse activateUser(Long userId) {
 
         User user=getUserEntity(userId);
-        if(isSameUser(user.getEmail(), userDetails.email()))
-            throw new IllegalActionException("only admin can activate your account");
+        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+        if(isSameUser(userId, parseUserId(authenticatedUserId)))
+            throw new IllegalActionException("you can't activate your account");
         user.setIsActive(true);
 
         return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
@@ -55,10 +63,12 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public UserResponse deactivateUser(Long userId,UserDetailsDTO userDetails) {
+    public UserResponse deactivateUser(Long userId) {
         User user=getUserEntity(userId);
-        if( isSameUser(user.getEmail(), userDetails.email()))
-            throw new IllegalActionException("only admin can deactivate your account");
+        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+
+        if( isSameUser(userId,parseUserId(authenticatedUserId)))
+            throw new IllegalActionException("you can't deactivate your account");
         user.setIsActive(false);
 
         return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
@@ -66,7 +76,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest,UserDetailsDTO userDetails) {
+    public Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest) {
 
 
         if (!PasswordValidationHelper.isValid(passwordResetRequest.newPassword())) {
@@ -74,13 +84,16 @@ public class UserServiceImpl implements UserService{
         }
         User user=getUserEntity(passwordResetRequest.userId());
 
-        if(!isSameUser(user.getEmail(),userDetails.email()))
+        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+
+        if(!isSameUser(user.getId(),parseUserId(authenticatedUserId)))
             throw new IllegalActionException("you can't reset other user account password");
+
         String newPassword= passwordResetRequest.newPassword();
         String confirmedPassword= passwordResetRequest.confirmedPassword();
 
         if(!confirmedPassword.equals(newPassword))
-            throw new ValidationException("the two passwords aren't identical");
+            throw new IllegalActionException("the two passwords aren't identical");
         user.setPassword(passwordEncoder.encode(newPassword));
 
         return user.getId();
@@ -89,7 +102,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest, UserDetailsDTO userDetails) {
+    public Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest) {
 
         if (!PasswordValidationHelper.isValid(passwordChangeRequest.newPassword())) {
             throw new IllegalActionException("Password does not meet security requirements");
@@ -97,8 +110,10 @@ public class UserServiceImpl implements UserService{
 
         User user = getUserEntity(passwordChangeRequest.userId());
 
-        if (!isSameUser(user.getEmail(), userDetails.email())) {
-            throw new IllegalArgumentException("You can't change another user's account password");
+        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+
+        if (!isSameUser(user.getId(),parseUserId(authenticatedUserId))) {
+            throw new IllegalActionException("You can't change another user's account password");
         }
 
 
@@ -120,10 +135,23 @@ public class UserServiceImpl implements UserService{
                 .orElseThrow(()->new EntityNotFoundException("User with id= "+userId+" doesn't exist"));
     }
 
-   private Boolean isSameUser(String email,String otherEmail)
+   private Boolean isSameUser(Long userId,Long authenticatedUserId)
    {
-       return  otherEmail.equals(email);
+       return  userId.equals(authenticatedUserId);
    }
+   private Long parseUserId (String id)
+   {
+       if (id == null) {
+           throw new IllegalActionException("UserId header is missing");
+       }
 
+       Long authUserId;
+       try {
+           authUserId = Long.parseLong(id);
+       } catch (NumberFormatException e) {
+           throw new IllegalActionException("Invalid UserId format");
+       }
+       return authUserId;
+   }
 
 }

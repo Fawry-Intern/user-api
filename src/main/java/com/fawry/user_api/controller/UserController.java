@@ -21,27 +21,25 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserProfile(@Valid @PathVariable Long userId, @RequestBody UserDetailsDTO userDetails)
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUserProfile(@Valid @PathVariable Long userId)
     {
-        return ResponseEntity.ok(userService.getUserProfile(userId,userDetails));
+        return ResponseEntity.ok(userService.getUserProfile(userId));
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<Long>changeUserAccountPassword
-            (@RequestBody PasswordChangeWrapper passwordChangeWrapper)
+            (@RequestBody PasswordChangeRequest passwordChangeRequest)
     {
      return ResponseEntity.ok(
-             userService.changeUserAccountPassword(passwordChangeWrapper.passwordChangeRequest()
-             ,passwordChangeWrapper.userDetails()));
+             userService.changeUserAccountPassword(passwordChangeRequest));
     }
      @PutMapping("/reset-password")
      public ResponseEntity<Long> resetUserAccountPassword
-             (@RequestBody PasswordResetWrapper passwordResetWrapper)
+             (@RequestBody PasswordResetRequest passwordResetRequest)
      {
       return ResponseEntity.ok(
-              userService.resetUserAccountPassword(passwordResetWrapper.passwordResetRequest()
-              ,passwordResetWrapper.userDetails()));
+              userService.resetUserAccountPassword(passwordResetRequest));
      }
 
     //admin authorities only
@@ -52,16 +50,15 @@ public class UserController {
     }
 
     @PutMapping("/activate/{userId}")
-    public ResponseEntity<UserResponse> activateUser(@Valid @PathVariable Long userId,@RequestBody UserDetailsDTO userDetails)
+    public ResponseEntity<UserResponse> activateUser(@Valid @PathVariable Long userId)
     {
-        return ResponseEntity.ok(userService.activateUser(userId,userDetails));
+        return ResponseEntity.ok(userService.activateUser(userId));
     }
     @PutMapping("/deactivate/{userId}")
     public ResponseEntity<UserResponse> deactivateUser
-            (@Valid @PathVariable Long userId
-            ,@RequestBody UserDetailsDTO userDetails)
+            (@Valid @PathVariable Long userId)
     {
-        return ResponseEntity.ok(userService.deactivateUser(userId,userDetails));
+        return ResponseEntity.ok(userService.deactivateUser(userId));
     }
 
 
