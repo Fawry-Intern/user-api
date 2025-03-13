@@ -13,16 +13,16 @@ public interface UserService {
 
    List<UserResponse> findAllUsers();
 
-   UserResponse activateUser(Long userId,UserDetailsDTO userDetails);
+   UserResponse activateUser(Long userId);
 
-   UserResponse deactivateUser(Long userId,UserDetailsDTO userDetails);
+   UserResponse deactivateUser(Long userId);
 
 
 
    //common user activities
-    Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest,UserDetailsDTO userDetails);
-   Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest,UserDetailsDTO userDetails);
-    UserResponse getUserProfile(Long userId, UserDetailsDTO userDetails);
+    Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest);
+   Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest);
+    UserResponse getUserProfile(Long userId);
 
 
 
