@@ -4,7 +4,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-    <!-- Create users table -->
+
+
     <changeSet id="create_users_tbl" author="muhammad hussein" context="development">
         <preConditions onFail="MARK_RAN">
             <not>
@@ -21,7 +22,7 @@
             <column name="password" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="role" type="user_role">
+            <column name="role" type="TEXT">
                 <constraints nullable="false"/>
             </column>
             <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
@@ -61,4 +62,6 @@
             <column name="username"/>
         </createIndex>
     </changeSet>
+
+
 </databaseChangeLog>

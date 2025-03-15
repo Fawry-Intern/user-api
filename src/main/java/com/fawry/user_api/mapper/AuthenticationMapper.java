@@ -18,13 +18,13 @@ public class AuthenticationMapper {
     {
         return new AuthenticationResponse(token,userId);
     }
-    public User toUserEntity(RegisterRequest request)
-    {
-        return new User(
-                request.username(),
-                request.email(),
-               passwordEncoder.encode( request.password()),
-                request.role()
-        );
+    public User mapFromSignRequestToUser(RegisterRequest request) {
+        return User.builder().
+                username(request.username()).
+                email(request.email()).
+                password(request.password()).
+                role(request.role()).
+                isActive(true).
+                build();
     }
 }
