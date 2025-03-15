@@ -1,10 +1,9 @@
 package com.fawry.user_api.controller;
 
-import com.fawry.user_api.dto.AuthenticationResponse;
-import com.fawry.user_api.dto.LogInRequest;
-import com.fawry.user_api.dto.SignUpRequest;
+import com.fawry.user_api.dto.auth.AuthenticationResponse;
+import com.fawry.user_api.dto.auth.AuthenticationRequest;
+import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.service.AuthenticationService;
-import com.fawry.user_api.service.AuthenticationServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,11 +21,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse>login(@Valid @RequestBody LogInRequest logInRequest) {
-        return ResponseEntity.ok(authenticationService.logIn(logInRequest));
+    public ResponseEntity<AuthenticationResponse>login(@Valid @RequestBody AuthenticationRequest logInRequest) {
+        return ResponseEntity.ok(authenticationService.authenticate(logInRequest));
     }
     @PostMapping("/sign-up")
-    public ResponseEntity<Boolean> singUp(@Valid @RequestBody SignUpRequest signUpRequest) {
-        return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
+    public ResponseEntity<Boolean> singUp(@Valid @RequestBody RegisterRequest signUpRequest) {
+        return ResponseEntity.ok(authenticationService.register(signUpRequest));
     }
 }

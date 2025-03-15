@@ -1,6 +1,5 @@
 package com.fawry.user_api.security;
 import com.fawry.user_api.entity.User;
-import com.fawry.user_api.util.UserClaimsHelper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,15 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
-                User user = this.userDetailsService.loadUserByUsername(userEmail);
 
-                UserClaimsHelper.setClaims(user.getId());
+                UserDetails user = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, user)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             user,
                             null,
-                            ((UserDetails) user).getAuthorities()
+                            user.getAuthorities()
                     );
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

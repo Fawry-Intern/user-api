@@ -1,13 +1,11 @@
 package com.fawry.user_api.controller;
 
-import com.fawry.user_api.dto.*;
+import com.fawry.user_api.dto.user.PasswordChangeRequest;
+import com.fawry.user_api.dto.user.PasswordResetRequest;
+import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.service.UserService;
-import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,21 +20,21 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserProfile(@Valid @PathVariable Long userId)
+    public ResponseEntity<UserDetailsResponse> getUserProfile( @PathVariable Long userId)
     {
         return ResponseEntity.ok(userService.getUserProfile(userId));
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<Long>changeUserAccountPassword
-            (@RequestBody PasswordChangeRequest passwordChangeRequest)
+            (@Valid @RequestBody PasswordChangeRequest passwordChangeRequest)
     {
      return ResponseEntity.ok(
              userService.changeUserAccountPassword(passwordChangeRequest));
     }
      @PutMapping("/reset-password")
      public ResponseEntity<Long> resetUserAccountPassword
-             (@RequestBody PasswordResetRequest passwordResetRequest)
+             (@Valid @RequestBody PasswordResetRequest passwordResetRequest)
      {
       return ResponseEntity.ok(
               userService.resetUserAccountPassword(passwordResetRequest));
@@ -44,19 +42,19 @@ public class UserController {
 
     //admin authorities only
     @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers()
+    public ResponseEntity<List<UserDetailsResponse>> getAllUsers()
     {
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
     @PutMapping("/activate/{userId}")
-    public ResponseEntity<UserResponse> activateUser(@Valid @PathVariable Long userId)
+    public ResponseEntity<UserDetailsResponse> activateUser( @PathVariable Long userId)
     {
         return ResponseEntity.ok(userService.activateUser(userId));
     }
     @PutMapping("/deactivate/{userId}")
-    public ResponseEntity<UserResponse> deactivateUser
-            (@Valid @PathVariable Long userId)
+    public ResponseEntity<UserDetailsResponse> deactivateUser
+            ( @PathVariable Long userId)
     {
         return ResponseEntity.ok(userService.deactivateUser(userId));
     }

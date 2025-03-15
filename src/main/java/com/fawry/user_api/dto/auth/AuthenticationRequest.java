@@ -1,8 +1,8 @@
-package com.fawry.user_api.dto;
+package com.fawry.user_api.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record LogInRequest
+public record AuthenticationRequest
         (
                 @NotBlank(message = "email mustn't be blank")
                 String email,

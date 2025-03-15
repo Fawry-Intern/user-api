@@ -1,13 +1,17 @@
-package com.fawry.user_api.service;
+package com.fawry.user_api.service.Impl;
 
-import com.fawry.user_api.dto.AuthenticationResponse;
-import com.fawry.user_api.dto.LogInRequest;
-import com.fawry.user_api.dto.SignUpRequest;
+import com.fawry.user_api.dto.auth.AuthenticationResponse;
+import com.fawry.user_api.dto.auth.AuthenticationRequest;
+import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.entity.User;
+import com.fawry.user_api.exception.DuplicateResourceException;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.exception.IllegalActionException;
+import com.fawry.user_api.exception.ResourceType;
+import com.fawry.user_api.mapper.AuthenticationMapper;
 import com.fawry.user_api.repository.UserRepository;
 import com.fawry.user_api.security.JwtService;
+import com.fawry.user_api.service.AuthenticationService;
 import com.fawry.user_api.util.PasswordValidationHelper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,43 +19,38 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthenticationServiceImpl implements AuthenticationService{
+public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
-    private  final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final AuthenticationMapper authenticationMapper;
 
-    public AuthenticationServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthenticationServiceImpl(UserRepository userRepository, AuthenticationManager authenticationManager, JwtService jwtService, AuthenticationMapper authenticationMapper) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.authenticationMapper = authenticationMapper;
     }
 
 
     @Override
-    public Boolean signUp(SignUpRequest request) {
+    public Boolean register(RegisterRequest request) {
 
         if (!PasswordValidationHelper.isValid(request.password())) {
             throw new IllegalActionException("Password does not meet security requirements");
         }
-        User user = new User
-                (request.username(),
-                        request.email(),
-                        passwordEncoder.encode(request.password()),
-                        request.role());
-
+        User user = authenticationMapper.toUserEntity(request);
 
         if (userRepository.existsByUsername(user.getUsername())) {
-           throw new EntityNotFoundException("this username already exists");
+           throw new DuplicateResourceException("this username already exists", ResourceType.USERNAME);
         }
         userRepository.save(user);
         return true;
     }
 
     @Override
-    public AuthenticationResponse logIn(LogInRequest request) {
+    public AuthenticationResponse authenticate(AuthenticationRequest request) {
         if (!PasswordValidationHelper.isValid(request.password())) {
             throw new IllegalActionException("Password does not meet security requirements");
         }
@@ -60,6 +59,6 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         User user=userRepository.findByEmail(request.email()).orElseThrow(()->new EntityNotFoundException("user not found"));
         String token=jwtService.generateToken(user);
 
-        return new AuthenticationResponse(token, user.getId());
+        return authenticationMapper.toAuthResponse(token, user.getId());
     }
 }

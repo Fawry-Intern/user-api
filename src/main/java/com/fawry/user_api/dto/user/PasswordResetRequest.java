@@ -1,4 +1,4 @@
-package com.fawry.user_api.dto;
+package com.fawry.user_api.dto.user;
 
 
 import jakarta.validation.constraints.NotNull;

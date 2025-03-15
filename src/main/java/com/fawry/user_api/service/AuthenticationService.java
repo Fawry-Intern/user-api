@@ -1,13 +1,12 @@
 package com.fawry.user_api.service;
 
-import com.fawry.user_api.dto.AuthenticationResponse;
-import com.fawry.user_api.dto.LogInRequest;
-import com.fawry.user_api.dto.SignUpRequest;
-import com.fawry.user_api.dto.UserResponse;
+import com.fawry.user_api.dto.auth.AuthenticationResponse;
+import com.fawry.user_api.dto.auth.AuthenticationRequest;
+import com.fawry.user_api.dto.auth.RegisterRequest;
 
 public interface AuthenticationService {
-    Boolean signUp(SignUpRequest request);
+    Boolean register(RegisterRequest request);
 
-    AuthenticationResponse logIn(LogInRequest request);
+    AuthenticationResponse authenticate(AuthenticationRequest request);
 
 }

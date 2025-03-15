@@ -1,13 +1,16 @@
-package com.fawry.user_api.service;
+package com.fawry.user_api.service.Impl;
 
-import com.fawry.user_api.dto.PasswordChangeRequest;
-import com.fawry.user_api.dto.PasswordResetRequest;
-import com.fawry.user_api.dto.UserDetailsDTO;
-import com.fawry.user_api.dto.UserResponse;
+import com.fawry.user_api.dto.user.PasswordChangeRequest;
+import com.fawry.user_api.dto.user.PasswordResetRequest;
+
+import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.entity.User;
+import com.fawry.user_api.enums.UserRole;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.exception.IllegalActionException;
+import com.fawry.user_api.mapper.UserMapper;
 import com.fawry.user_api.repository.UserRepository;
+import com.fawry.user_api.service.UserService;
 import com.fawry.user_api.util.PasswordValidationHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
@@ -17,32 +20,36 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
  private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
  private final HttpServletRequest httpServletRequest;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, HttpServletRequest httpServletRequest) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, HttpServletRequest httpServletRequest) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
         this.httpServletRequest = httpServletRequest;
     }
     @Override
-    public List<UserResponse> findAllUsers() {
-        return  userRepository.findAll().stream().map(UserResponse::of).toList();
+    public List<UserDetailsResponse> findAllUsers() {
+        return  userRepository.findAll().stream().map(UserDetailsResponse::of).toList();
     }
 
     @Override
-    public UserResponse getUserProfile(Long userId) {
+    public UserDetailsResponse getUserProfile(Long userId) {
 
-        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+       Long authenticatedUserId=parseUserId(httpServletRequest.getHeader("UserId"));
 
+     UserRole authenticatedUserRole= transformToEnum(httpServletRequest.getHeader("Role"));
         User user=getUserEntity(userId);
-        if(!isSameUser(user.getId(),parseUserId(authenticatedUserId)))
+
+        if(!authenticatedUserRole.equals(UserRole.ADMIN) && !isSameUser(user.getId(),authenticatedUserId))
             throw new IllegalActionException("only admin can see other profiles");
 
-       return new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
+       return userMapper.toUserResponse(user);
 
     }
 
@@ -50,7 +57,7 @@ public class UserServiceImpl implements UserService{
 
     @Transactional
     @Override
-    public UserResponse activateUser(Long userId) {
+    public UserDetailsResponse activateUser(Long userId) {
 
         User user=getUserEntity(userId);
         String authenticatedUserId=httpServletRequest.getHeader("UserId");
@@ -58,12 +65,12 @@ public class UserServiceImpl implements UserService{
             throw new IllegalActionException("you can't activate your account");
         user.setIsActive(true);
 
-        return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
+        return  userMapper.toUserResponse(user);
     }
 
     @Transactional
     @Override
-    public UserResponse deactivateUser(Long userId) {
+    public UserDetailsResponse deactivateUser(Long userId) {
         User user=getUserEntity(userId);
         String authenticatedUserId=httpServletRequest.getHeader("UserId");
 
@@ -71,7 +78,7 @@ public class UserServiceImpl implements UserService{
             throw new IllegalActionException("you can't deactivate your account");
         user.setIsActive(false);
 
-        return  new UserResponse(userId, user.getUsername(),user.getEmail(),user.getIsActive(),user.getRole());
+        return  userMapper.toUserResponse(user);
     }
 
     @Transactional
@@ -152,6 +159,14 @@ public class UserServiceImpl implements UserService{
            throw new IllegalActionException("Invalid UserId format");
        }
        return authUserId;
+   }
+   private UserRole transformToEnum(String role)
+   {
+       if(role.equalsIgnoreCase("ADMIN"))
+       {
+           return UserRole.ADMIN;
+       }
+       return UserRole.CUSTOMER;
    }
 
 }
