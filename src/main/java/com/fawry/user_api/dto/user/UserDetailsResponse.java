@@ -12,13 +12,5 @@ public record UserDetailsResponse
          UserRole role
         )
 {
-    public static UserDetailsResponse of(User user) {
-        return new UserDetailsResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getIsActive(),
-                user.getRole()
-        );
-    }
+
 }

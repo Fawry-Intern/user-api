@@ -22,7 +22,7 @@ public class AuthenticationMapper {
         return User.builder().
                 username(request.username()).
                 email(request.email()).
-                password(request.password()).
+                password(passwordEncoder.encode(request.password())).
                 role(request.role()).
                 isActive(true).
                 build();
