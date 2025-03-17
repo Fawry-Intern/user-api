@@ -1,8 +1,6 @@
 package com.fawry.kafka.events;
 
-import java.io.Serializable;
-
-public class RegisterEvent extends BaseEvent implements Serializable {
+public class RegisterEvent extends BaseEvent {
 
     private final String username;
 
