@@ -1,13 +1,22 @@
 package com.fawry.user_api.service.Impl;
 
+import com.fawry.kafka.dto.EventType;
+import com.fawry.kafka.events.BaseEvent;
+import com.fawry.kafka.events.RegisterEvent;
+import com.fawry.kafka.factory.EventFactory;
+import com.fawry.kafka.producer.Producer;
+import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.enums.UserRole;
+import com.fawry.user_api.exception.DuplicateResourceException;
 import com.fawry.user_api.exception.EntityNotFoundException;
 import com.fawry.user_api.exception.IllegalActionException;
+import com.fawry.user_api.exception.ResourceType;
+import com.fawry.user_api.mapper.AuthenticationMapper;
 import com.fawry.user_api.mapper.UserMapper;
 import com.fawry.user_api.repository.UserRepository;
 import com.fawry.user_api.service.UserService;
@@ -21,17 +30,24 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
- private final PasswordEncoder passwordEncoder;
+     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final AuthenticationMapper authenticationMapper;
+    private final HttpServletRequest httpServletRequest;
+    private final Producer<BaseEvent> producer;
 
- private final HttpServletRequest httpServletRequest;
+    private final EventFactory eventFactory;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, HttpServletRequest httpServletRequest) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, AuthenticationMapper authenticationMapper, HttpServletRequest httpServletRequest, Producer<BaseEvent> producer, EventFactory eventFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
+        this.authenticationMapper = authenticationMapper;
         this.httpServletRequest = httpServletRequest;
+        this.producer = producer;
+        this.eventFactory = eventFactory;
     }
     @Override
     public List<UserDetailsResponse> findAllUsers() {
@@ -43,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
        Long authenticatedUserId=parseUserId(httpServletRequest.getHeader("UserId"));
 
-     UserRole authenticatedUserRole= transformToEnum(httpServletRequest.getHeader("Role"));
+     UserRole authenticatedUserRole= UserRole.valueOf(httpServletRequest.getHeader("Role"));
         User user=getUserEntity(userId);
 
         if(!authenticatedUserRole.equals(UserRole.ADMIN) && !isSameUser(user.getId(),authenticatedUserId))
@@ -79,6 +95,26 @@ public class UserServiceImpl implements UserService {
         user.setIsActive(false);
 
         return  userMapper.toUserResponse(user);
+    }
+
+    @Override
+    public void createDeliveryUser(RegisterRequest registerRequest) {
+        User user = authenticationMapper.mapFromSignRequestToDelivery(registerRequest);
+
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new DuplicateResourceException("this username already exists", ResourceType.USERNAME);
+        }
+
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateResourceException("This email already exists", ResourceType.EMAIL);
+        }
+
+        userRepository.save(user);
+
+
+        var event = (RegisterEvent) eventFactory.getEvent(EventType.REGISTER, registerRequest);
+
+        producer.sendEvent(event, 0);
     }
 
     @Transactional
@@ -159,14 +195,6 @@ public class UserServiceImpl implements UserService {
            throw new IllegalActionException("Invalid UserId format");
        }
        return authUserId;
-   }
-   private UserRole transformToEnum(String role)
-   {
-       if(role.equalsIgnoreCase("ADMIN"))
-       {
-           return UserRole.ADMIN;
-       }
-       return UserRole.CUSTOMER;
    }
 
 }

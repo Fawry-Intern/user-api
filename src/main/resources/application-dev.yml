@@ -6,14 +6,12 @@ spring:
     password: postgres
     maxPoolSize: 20
     maxLifeTime: 1800000
-  config:
-    activate:
-      on-profile: test
+
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        hbm2ddl.auto: none
+        hbm2ddl.auto: update
         show_sql: true
         format_sql: true
         jdbc:

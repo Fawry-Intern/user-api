@@ -1,5 +1,6 @@
 package com.fawry.user_api.service;
 
+import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
@@ -15,6 +16,8 @@ public interface UserService {
    UserDetailsResponse activateUser(Long userId);
 
    UserDetailsResponse deactivateUser(Long userId);
+
+   void createDeliveryUser(RegisterRequest registerRequest);
 
 
 

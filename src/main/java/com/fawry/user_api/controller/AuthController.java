@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/auth")
 public class AuthController {
     private final AuthenticationService authenticationService;
-
     public AuthController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse>login(@Valid @RequestBody AuthenticationRequest logInRequest) {
+    public ResponseEntity<AuthenticationResponse>login(@RequestBody AuthenticationRequest logInRequest) {
         return ResponseEntity.ok(authenticationService.authenticate(logInRequest));
     }
+
     @PostMapping("/sign-up")
     public ResponseEntity<Boolean> singUp(@Valid @RequestBody RegisterRequest signUpRequest) {
         return ResponseEntity.ok(authenticationService.register(signUpRequest));
