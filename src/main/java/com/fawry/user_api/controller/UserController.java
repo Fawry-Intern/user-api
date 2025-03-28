@@ -1,10 +1,12 @@
 package com.fawry.user_api.controller;
 
+import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +42,6 @@ public class UserController {
               userService.resetUserAccountPassword(passwordResetRequest));
      }
 
-    //admin authorities only
     @GetMapping
     public ResponseEntity<List<UserDetailsResponse>> getAllUsers()
     {
@@ -59,6 +60,11 @@ public class UserController {
         return ResponseEntity.ok(userService.deactivateUser(userId));
     }
 
-
-
+    @PostMapping("/create-delivery")
+    public ResponseEntity<Void> createDeliveryUser
+            (@Valid @RequestBody RegisterRequest registerRequest)
+    {
+        userService.createDeliveryUser(registerRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 }
