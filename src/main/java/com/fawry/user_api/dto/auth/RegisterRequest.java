@@ -14,7 +14,7 @@ public record RegisterRequest
         (
                 @NotBlank(message = "Username is required")
                 @Size(min = 3, max = 255, message = "Username must be between 3 and 255 characters")
-                String username,
+                String userName,
 
                 @Email(message = "Invalid email format")
                 @NotBlank
@@ -23,9 +23,6 @@ public record RegisterRequest
                 @NotBlank(message = "Password is required")
                 @Size(min = 8, message = "Password must be at least 8 characters long")
                 @ValidPassword
-                String password,
-
-                @NotNull(message = "Role is required")
-                UserRole role
+                String password
         ) {
 }

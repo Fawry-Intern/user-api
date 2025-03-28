@@ -1,6 +1,5 @@
 package com.fawry.user_api.service;
 
-import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 
@@ -20,7 +19,6 @@ public interface UserService {
 
    //common user activities
     Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest);
-   Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest);
     UserDetailsResponse getUserProfile(Long userId);
 
 

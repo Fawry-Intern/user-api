@@ -3,6 +3,7 @@ package com.fawry.user_api.mapper;
 import com.fawry.user_api.dto.auth.AuthenticationResponse;
 import com.fawry.user_api.dto.auth.RegisterRequest;
 import com.fawry.user_api.entity.User;
+import com.fawry.user_api.enums.UserRole;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +21,10 @@ public class AuthenticationMapper {
     }
     public User mapFromSignRequestToUser(RegisterRequest request) {
         return User.builder().
-                username(request.username()).
+                username(request.userName()).
                 email(request.email()).
                 password(passwordEncoder.encode(request.password())).
-                role(request.role()).
+                role(UserRole.CUSTOMER).
                 isActive(true).
                 build();
     }

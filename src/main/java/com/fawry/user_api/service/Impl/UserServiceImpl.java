@@ -1,6 +1,5 @@
 package com.fawry.user_api.service.Impl;
 
-import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 
 import com.fawry.user_api.dto.user.UserDetailsResponse;
@@ -102,35 +101,6 @@ public class UserServiceImpl implements UserService {
         if(!confirmedPassword.equals(newPassword))
             throw new IllegalActionException("the two passwords aren't identical");
         user.setPassword(passwordEncoder.encode(newPassword));
-
-        return user.getId();
-    }
-
-
-    @Transactional
-    @Override
-    public Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest) {
-
-        if (!PasswordValidationHelper.isValid(passwordChangeRequest.newPassword())) {
-            throw new IllegalActionException("Password does not meet security requirements");
-        }
-
-        User user = getUserEntity(passwordChangeRequest.userId());
-
-        String authenticatedUserId=httpServletRequest.getHeader("UserId");
-
-        if (!isSameUser(user.getId(),parseUserId(authenticatedUserId))) {
-            throw new IllegalActionException("You can't change another user's account password");
-        }
-
-
-        if (!passwordEncoder.matches(passwordChangeRequest.oldPassword(), user.getPassword())) {
-            throw new ValidationException("Old password isn't correct");
-        }
-
-
-        String encodedNewPassword = passwordEncoder.encode(passwordChangeRequest.newPassword());
-        user.setPassword(encodedNewPassword);
 
         return user.getId();
     }

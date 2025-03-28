@@ -1,6 +1,5 @@
 package com.fawry.user_api.controller;
 
-import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.service.UserService;
@@ -25,13 +24,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(userId));
     }
 
-    @PutMapping("/change-password")
-    public ResponseEntity<Long>changeUserAccountPassword
-            (@Valid @RequestBody PasswordChangeRequest passwordChangeRequest)
-    {
-     return ResponseEntity.ok(
-             userService.changeUserAccountPassword(passwordChangeRequest));
-    }
      @PutMapping("/reset-password")
      public ResponseEntity<Long> resetUserAccountPassword
              (@Valid @RequestBody PasswordResetRequest passwordResetRequest)
