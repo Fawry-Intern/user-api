@@ -31,8 +31,16 @@ public class TokenController {
 
     //here roles must be both client and admin
     @GetMapping("/user/validation")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'DELIVERY')")
     public ResponseEntity<UserClaimsDTO> validateUserToken() {
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(userClaimsMapper.getClaims(user));
+    }
+
+    @GetMapping("/delivery/validation")
+    @PreAuthorize("hasRole('DELIVERY')")
+    public ResponseEntity<UserClaimsDTO> validateDeliveryToken() {
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(userClaimsMapper.getClaims(user));

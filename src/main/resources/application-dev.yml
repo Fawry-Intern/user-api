@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/user_db
+    url: jdbc:postgresql://192.168.99.101:5432/user_db
     username: postgres
     password: postgres
     maxPoolSize: 20
@@ -9,11 +9,12 @@ spring:
   config:
     activate:
       on-profile: dev
+
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        hbm2ddl.auto: none
+        hbm2ddl.auto: update
         show_sql: true
         format_sql: true
         jdbc:

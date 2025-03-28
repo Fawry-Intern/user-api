@@ -19,12 +19,22 @@ public class AuthenticationMapper {
     {
         return new AuthenticationResponse(token,userId);
     }
-    public User mapFromSignRequestToUser(RegisterRequest request) {
+    public User mapFromSignRequestToCustomer(RegisterRequest request) {
         return User.builder().
                 username(request.userName()).
                 email(request.email()).
                 password(passwordEncoder.encode(request.password())).
-                role(UserRole.CUSTOMER).
+                role(UserRole.valueOf("CUSTOMER")).
+                isActive(true).
+                build();
+    }
+
+    public User mapFromSignRequestToDelivery(RegisterRequest request) {
+        return User.builder().
+                username(request.userName()).
+                email(request.email()).
+                password(passwordEncoder.encode(request.password())).
+                role(UserRole.valueOf("DELIVERY")).
                 isActive(true).
                 build();
     }

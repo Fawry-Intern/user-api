@@ -47,7 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public Boolean register(RegisterRequest request) {
 
-        User user = authenticationMapper.mapFromSignRequestToUser(request);
+        User user = authenticationMapper.mapFromSignRequestToCustomer(request);
 
         if (userRepository.existsByUsername(user.getUsername())) {
            throw new DuplicateResourceException("this username already exists", ResourceType.USERNAME);
@@ -58,7 +58,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         userRepository.save(user);
-
 
 
         var event = (RegisterEvent) eventFactory.getEvent(EventType.REGISTER, request);
