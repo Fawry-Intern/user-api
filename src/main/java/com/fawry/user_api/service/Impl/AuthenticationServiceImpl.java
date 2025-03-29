@@ -75,6 +75,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user=userRepository.findByEmail(request.email()).orElseThrow(()->new EntityNotFoundException("user not found"));
         String token=jwtService.generateToken(user);
 
-        return authenticationMapper.toAuthResponse(token, user.getId());
+        return authenticationMapper.toAuthResponse(token, user.getId(),user.getRole());
     }
 }

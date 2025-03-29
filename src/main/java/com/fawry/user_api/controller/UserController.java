@@ -5,6 +5,7 @@ import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,26 +13,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("api/user")
 public class UserController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDetailsResponse> getUserProfile( @PathVariable Long userId)
     {
         return ResponseEntity.ok(userService.getUserProfile(userId));
     }
-     @PutMapping("/reset-password")
-     public ResponseEntity<Long> resetUserAccountPassword
-             (@Valid @RequestBody PasswordResetRequest passwordResetRequest)
-     {
-      return ResponseEntity.ok(
-              userService.resetUserAccountPassword(passwordResetRequest));
-     }
+
 
     @GetMapping
     public ResponseEntity<List<UserDetailsResponse>> getAllUsers()
