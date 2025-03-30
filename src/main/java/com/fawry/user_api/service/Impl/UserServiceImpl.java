@@ -100,9 +100,6 @@ public class UserServiceImpl implements UserService {
     public void createDeliveryUser(RegisterRequest registerRequest) {
         User user = authenticationMapper.mapFromSignRequestToDelivery(registerRequest);
 
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new DuplicateResourceException("this username already exists", ResourceType.USERNAME);
-        }
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateResourceException("This email already exists", ResourceType.EMAIL);

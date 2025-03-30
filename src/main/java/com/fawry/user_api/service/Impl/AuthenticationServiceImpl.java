@@ -49,10 +49,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         User user = authenticationMapper.mapFromSignRequestToCustomer(request);
 
-        if (userRepository.existsByUsername(user.getUsername())) {
-           throw new DuplicateResourceException("this username already exists", ResourceType.USERNAME);
-        }
-
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateResourceException("This email already exists", ResourceType.EMAIL);
         }

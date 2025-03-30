@@ -22,45 +22,51 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "users", indexes = {
-        @Index(name = "idx_users_email", columnList = "email"),
-        @Index(name = "idx_users_username",columnList = "username")
+        @Index(name = "idx_users_email", columnList = "email")
 })
 public class User implements UserDetails {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 3, max = 255, message = "Username must be between 3 and 255 characters")
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
+    @NotBlank(message = "First name is required")
+    @Size(max = 20, message = "First name must not exceed 20 characters")
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
+    @NotBlank(message = "Last name is required")
+    @Size(max = 20, message = "Last name must not exceed 20 characters")
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
-    @NotNull
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @NotBlank(message = "Password is required")
-    @Column(nullable = false)
+    @Size(min = 8, message = "Password must be at least 8 characters long")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRole role;
+    @Column(name = "is_active")
+    private Boolean isActive ;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+
+    @NotNull(message = "User role is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private UserRole role ;
+
+    @Column(name = "profile_picture")
+    private String profilePicture;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at", updatable = false)
     private Instant createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

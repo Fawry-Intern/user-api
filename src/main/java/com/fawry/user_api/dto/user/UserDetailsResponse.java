@@ -3,12 +3,15 @@ package com.fawry.user_api.dto.user;
 import com.fawry.user_api.entity.User;
 import com.fawry.user_api.enums.UserRole;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 public record UserDetailsResponse
         (  Long id,
-           String username,
+           String firstName,
+          String lastName,
           String email,
-         boolean isActive,
+         Boolean isActive,
          UserRole role
         )
 {

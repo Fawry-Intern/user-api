@@ -13,8 +13,12 @@ import lombok.Builder;
 public record RegisterRequest
         (
                 @NotBlank(message = "Username is required")
-                @Size(min = 3, max = 255, message = "Username must be between 3 and 255 characters")
-                String userName,
+                @Size(min = 3, max = 255, message = "First name must be between 3 and 255 characters")
+                String firstName,
+
+                @NotBlank(message = "Username is required")
+                @Size(min = 3, max = 255, message = "First name must be between 3 and 255 characters")
+                String lastName,
 
                 @Email(message = "Invalid email format")
                 @NotBlank

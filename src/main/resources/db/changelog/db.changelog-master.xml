@@ -1,67 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
 
-
-
-    <changeSet id="create_users_tbl" author="muhammad hussein" context="development">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <tableExists tableName="users"/>
-            </not>
-        </preConditions>
-        <createTable tableName="users" schemaName="public">
-            <column name="user_id" type="SERIAL" autoIncrement="true">
-                <constraints primaryKey="true" nullable="false"/>
+    <changeSet id="2" author="developer">
+        <createTable tableName="users">
+            <column name="user_id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false" />
+            </column>
+            <column name="first_name" type="VARCHAR(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="last_name" type="VARCHAR(20)">
+                <constraints nullable="false" />
+            </column>
+            <column name="is_active" type="BOOLEAN">
+                <constraints nullable="false" />
             </column>
             <column name="email" type="VARCHAR(255)">
-                <constraints unique="true" nullable="false"/>
+                <constraints unique="true" nullable="false" />
             </column>
             <column name="password" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+                <constraints nullable="false" />
             </column>
-            <column name="role" type="TEXT">
-                <constraints nullable="false"/>
+            <column name="role" type="VARCHAR(50)">
+                <constraints nullable="false" />
             </column>
-            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
-                <constraints nullable="false"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false" />
             </column>
-            <column name="created_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
-                <constraints nullable="false"/>
-            </column>
-            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP">
-                <constraints nullable="false"/>
+
+            <column name="profile_picture" type="varchar(255)">
+
             </column>
         </createTable>
-    </changeSet>
 
-
-    <changeSet id="add_username_column" author="muhammad hussein" context="development">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="users" columnName="username"/>
-            </not>
-        </preConditions>
-        <addColumn tableName="users">
-            <column name="username" type="VARCHAR(150)">
-                <constraints unique="true" nullable="false"/>
-            </column>
-        </addColumn>
-    </changeSet>
-
-
-    <changeSet id="idx_users_username" author="muhammad hussein" context="development">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <indexExists indexName="idx_users_username"/>
-            </not>
-        </preConditions>
-        <createIndex indexName="idx_users_username" tableName="users">
-            <column name="username"/>
+        <createIndex indexName="idx_users_email" tableName="users">
+            <column name="email" />
         </createIndex>
     </changeSet>
-
-
 </databaseChangeLog>

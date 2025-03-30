@@ -21,7 +21,8 @@ public class AuthenticationMapper {
     }
     public User mapFromSignRequestToCustomer(RegisterRequest request) {
         return User.builder().
-                username(request.userName()).
+                firstName(request.firstName()).
+                lastName(request.lastName()).
                 email(request.email()).
                 password(passwordEncoder.encode(request.password())).
                 role(UserRole.valueOf("CUSTOMER")).
@@ -31,7 +32,8 @@ public class AuthenticationMapper {
 
     public User mapFromSignRequestToDelivery(RegisterRequest request) {
         return User.builder().
-                username(request.userName()).
+                firstName(request.firstName()).
+                lastName(request.lastName()).
                 email(request.email()).
                 password(passwordEncoder.encode(request.password())).
                 role(UserRole.valueOf("DELIVERY")).

@@ -13,7 +13,7 @@ public class EventFactory {
     public Object getEvent(EventType type, Object data) {
         switch (type) {
             case REGISTER -> {
-                return new RegisterEvent(((RegisterRequest) data).email(), ((RegisterRequest) data).userName());
+                return new RegisterEvent(((RegisterRequest) data).email());
             }
             case LOGIN -> {
                 return new LoginEvent(((AuthenticationRequest) data).email(), ((AuthenticationRequest) data).password());
