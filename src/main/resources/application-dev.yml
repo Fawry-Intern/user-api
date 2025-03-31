@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver: org.postgresql.Driver
-    url: jdbc:postgresql://192.168.99.101:5432/user_db
+    url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
     password: postgres
     maxPoolSize: 20
@@ -21,7 +21,7 @@ spring:
           batch_size: 20
   kafka:
     producer:
-      bootstrap-servers: 192.168.99.101:9092
+      bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
@@ -38,6 +38,6 @@ security:
   jwt:
     secret-key: 9SlLvC1uDlj0vN2e5Wh9a692xd4QZuPaoGDHhhvD404OEJI5g/x6iiNaoM/z7PUfoYHwG5pE35426585AWFFXA==
 
-    expiration-time: 900000
+    expiration-time: 900000000
 server:
   port: 4041

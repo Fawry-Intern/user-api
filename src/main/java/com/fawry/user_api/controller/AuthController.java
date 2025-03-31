@@ -29,11 +29,4 @@ public class AuthController {
         return ResponseEntity.ok(authenticationService.register(signUpRequest));
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<Long> resetUserAccountPassword
-            (@Valid @RequestBody PasswordResetRequest passwordResetRequest)
-    {
-        return ResponseEntity.ok(
-                userService.resetUserAccountPassword(passwordResetRequest));
-    }
 }

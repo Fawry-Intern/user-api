@@ -1,6 +1,8 @@
 package com.fawry.user_api.controller;
 
 import com.fawry.user_api.dto.auth.RegisterRequest;
+import com.fawry.user_api.dto.delivery_person.DeliveryPersonCreationDetails;
+import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 import com.fawry.user_api.dto.user.UserDetailsResponse;
 import com.fawry.user_api.service.UserService;
@@ -24,7 +26,13 @@ public class UserController {
     {
         return ResponseEntity.ok(userService.getUserProfile(userId));
     }
-
+    @PutMapping("/change-password")
+    public ResponseEntity<Long>changeUserAccountPassword
+            (@Valid @RequestBody PasswordChangeRequest passwordChangeRequest)
+    {
+        return ResponseEntity.ok(
+                userService.changeUserAccountPassword(passwordChangeRequest));
+    }
 
     @GetMapping
     public ResponseEntity<List<UserDetailsResponse>> getAllUsers()
@@ -45,10 +53,12 @@ public class UserController {
     }
 
     @PostMapping("/create-delivery")
-    public ResponseEntity<Void> createDeliveryUser
-            (@Valid @RequestBody RegisterRequest registerRequest)
+    public ResponseEntity<Long> createDeliveryUser
+            (@Valid @RequestBody DeliveryPersonCreationDetails deliveryPersonCreationDetails)
     {
-        userService.createDeliveryUser(registerRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Long userId=userService.createDeliveryUser(deliveryPersonCreationDetails);
+
+        return new ResponseEntity<>(userId,HttpStatus.CREATED);
     }
+
 }

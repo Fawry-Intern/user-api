@@ -44,7 +44,7 @@ public class TokenController {
     }
 
     @GetMapping("/user/validation")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'DELIVERY')")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserClaimsDTO> validateUserToken() {
 
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

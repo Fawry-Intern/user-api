@@ -6,6 +6,8 @@ import com.fawry.kafka.events.RegisterEvent;
 import com.fawry.kafka.factory.EventFactory;
 import com.fawry.kafka.producer.Producer;
 import com.fawry.user_api.dto.auth.RegisterRequest;
+import com.fawry.user_api.dto.delivery_person.DeliveryPersonCreationDetails;
+import com.fawry.user_api.dto.user.PasswordChangeRequest;
 import com.fawry.user_api.dto.user.PasswordResetRequest;
 
 import com.fawry.user_api.dto.user.UserDetailsResponse;
@@ -19,15 +21,20 @@ import com.fawry.user_api.mapper.AuthenticationMapper;
 import com.fawry.user_api.mapper.UserMapper;
 import com.fawry.user_api.repository.UserRepository;
 import com.fawry.user_api.service.UserService;
+import com.fawry.user_api.service.WebClientService;
 import com.fawry.user_api.util.PasswordValidationHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
+import jakarta.ws.rs.NotFoundException;
+import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -36,18 +43,10 @@ public class UserServiceImpl implements UserService {
     private final AuthenticationMapper authenticationMapper;
     private final HttpServletRequest httpServletRequest;
     private final Producer<BaseEvent> producer;
-
+    private  final WebClientService webClientService;
     private final EventFactory eventFactory;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper, AuthenticationMapper authenticationMapper, HttpServletRequest httpServletRequest, Producer<BaseEvent> producer, EventFactory eventFactory) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userMapper = userMapper;
-        this.authenticationMapper = authenticationMapper;
-        this.httpServletRequest = httpServletRequest;
-        this.producer = producer;
-        this.eventFactory = eventFactory;
-    }
+
     @Override
     public List<UserDetailsResponse> findAllUsers() {
         return  userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
@@ -97,46 +96,54 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createDeliveryUser(RegisterRequest registerRequest) {
-        User user = authenticationMapper.mapFromSignRequestToDelivery(registerRequest);
+    public Long createDeliveryUser(DeliveryPersonCreationDetails deliveryPersonCreationDetails) {
+        User user = authenticationMapper.mapFromSignRequestToDelivery(deliveryPersonCreationDetails);
 
 
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateResourceException("This email already exists", ResourceType.EMAIL);
         }
 
-        userRepository.save(user);
+        webClientService.createDeliveryPerson(deliveryPersonCreationDetails);
 
+        User savedUser= userRepository.save(user);
+          RegisterRequest registerRequest= RegisterRequest
+                  .builder().firstName(deliveryPersonCreationDetails.firstName())
+                  .lastName(deliveryPersonCreationDetails.lastName())
+                  .email(deliveryPersonCreationDetails.email())
+                  .password(deliveryPersonCreationDetails.password())
+                  .build();
 
         var event = (RegisterEvent) eventFactory.getEvent(EventType.REGISTER, registerRequest);
-
         producer.sendEvent(event, 0);
+
+        return savedUser.getId();
+
     }
 
     @Transactional
     @Override
-    public Long resetUserAccountPassword(PasswordResetRequest passwordResetRequest) {
+    public Long changeUserAccountPassword(PasswordChangeRequest passwordChangeRequest) {
+        User authenticatedUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String authenticatedUserId = httpServletRequest.getHeader("UserId");
 
-
-        if (!PasswordValidationHelper.isValid(passwordResetRequest.newPassword())) {
-            throw new IllegalActionException("Password does not meet security requirements");
+        if (!isSameUser(authenticatedUser.getId(), parseUserId(authenticatedUserId))) {
+            throw new IllegalActionException("You can't change another user's account password");
         }
-        User user=getUserEntity(passwordResetRequest.userId());
 
-        String authenticatedUserId=httpServletRequest.getHeader("UserId");
+        User user = userRepository.findById(authenticatedUser.getId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if(!isSameUser(user.getId(),parseUserId(authenticatedUserId)))
-            throw new IllegalActionException("you can't reset other user account password");
+        if (!passwordEncoder.matches(passwordChangeRequest.oldPassword(), user.getPassword())) {
+            throw new ValidationException("Old password isn't correct");
+        }
 
-        String newPassword= passwordResetRequest.newPassword();
-        String confirmedPassword= passwordResetRequest.confirmedPassword();
-
-        if(!confirmedPassword.equals(newPassword))
-            throw new IllegalActionException("the two passwords aren't identical");
-        user.setPassword(passwordEncoder.encode(newPassword));
+        String encodedNewPassword = passwordEncoder.encode(passwordChangeRequest.newPassword());
+        user.setPassword(encodedNewPassword);
 
         return user.getId();
     }
+
 
 
     private User getUserEntity(Long userId)
