@@ -16,9 +16,9 @@ public class AuthenticationMapper {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthenticationResponse toAuthResponse(String token, Long userId,UserRole role)
+    public AuthenticationResponse toAuthResponse(String token, Long userId,UserRole role,String email)
     {
-        return new AuthenticationResponse(token,userId,role);
+        return  AuthenticationResponse.builder().accessToken(token).userId(userId).role(role).email(email).build();
     }
     public User mapFromSignRequestToCustomer(RegisterRequest request) {
         return User.builder().
