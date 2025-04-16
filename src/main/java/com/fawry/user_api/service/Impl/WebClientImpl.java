@@ -19,7 +19,7 @@ public class WebClientImpl implements WebClientService {
     private final WebClient.Builder webClientBuilder;
 
     private WebClient webClient() {
-        return webClientBuilder.baseUrl("http://localhost:3031").build();
+        return webClientBuilder.baseUrl("http://localhost:5555").build();
     }
 
     @Override
